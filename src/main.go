@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
+	"strings"
 )
 
 func main() {
@@ -53,6 +55,16 @@ type Character struct {
 	HPnormal  int
 	Inventory []Item
 	Skills	  []Skill
+	Coins     int
+}
+
+type Enemy struct {
+    name     string
+    HPmax    int
+    HPnormal int
+    attack   int
+    rewardCoins int
+    loot     Item
 }
 
 type Skill struct {
@@ -149,6 +161,7 @@ func PersonnagePrincipal() Character {
 		HPnormal: 100,
 		Inventory: []Item{
 			{"Seringue de soin", "Restaure 50 PV"},
+			{"Fiole de Neurotoxine", "Empoisonne l'ennemi pendant 3s (Combat uniquement)", },
 		},
 		Skills: []Skill{
 			{"Coup de poing", "Enlève 15 PV", "(C)"},
@@ -164,22 +177,47 @@ func InitCharacter() Character {
 
 	fmt.Print("Choisis un prénom: ")
 	scanner.Scan()
+	name := scanner.Text()
+
+	var class string
+	var HPmax int
+
+	for {
+		fmt.Print("Choisis une classe (Humain, Robot, Vagabond) : ")
+		scanner.Scan()
+		class = strings.Title(strings.ToLower(scanner.Text()))
+
+		switch class {
+		case "Humain":
+			HPmax = 100
+		case "Robot":
+			HPmax = 120
+		case "Vagabond":
+			HPmax = 80
+		default:
+			fmt.Println("Classe invalide. Essaie encore.")
+			continue
+		}
+		break
+	}
 
 	personnage := Character{
-		name:     scanner.Text(),
-		class:    "Robot",
+		name:     name,
+		class:    class,
 		level:    1,
-		HPmax:    100,
-		HPnormal: 40,
+		HPmax:    HPmax,
+		HPnormal: HPmax / 2,
+
 		Inventory: []Item{
-			{"Seringue de soin", "Restaure 50 PV", },
-			{"Fiole de Neurotoxine", "Empoisonne l'ennemi pendant 3s", },
+			{"Seringue de soin", "Restaure 50 PV"},
+			{"Fiole de Neurotoxine", "Empoisonne l'ennemi pendant 3s"},
 		},
 		Skills: []Skill{
 			{"Coup de poing", "Enlève 15 PV", "(C)"},
 			{"Poing chromé", "Enlève 40 PV", "(U)"},
 		},
 	}
+
 	fmt.Println()
 	fmt.Println("Ton personnage a été créé !")
 	fmt.Println()
@@ -296,6 +334,7 @@ func Marchand(joueur Character) {
 	`)
 	fmt.Println("Bienvenue,", joueur.name, "! J'ai tout ce qu'il te faut ici.")
 	fmt.Println("- Seringue de soin (gratuit) O1 / N1")
+	fmt.Println("- Fiole de Neurotoxine (gratuit) O2 / N2")
 
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Print("> ")
@@ -310,13 +349,35 @@ func Marchand(joueur Character) {
 			fmt.Println("\nÀ très bientot", joueur.name, "!")
 			fmt.Println()
 			Jouer(joueur)
+		} else if choix == "O2" {
+			item := Item{Name: "Fiole de Neurotoxine", Description: "Empoisonne l'ennemi pendant 3s"}
+			joueur.Inventory = addItem(joueur.Inventory, item)
+			fmt.Println("\nJe me demande bien ce que tu comptes faire\n")
+		} else if choix == "N2" {
+			fmt.Println()
+			fmt.Println("\nÀ très bientot", joueur.name, "!")
+			fmt.Println()
+			Jouer(joueur)
 		}
 	}
 	Jouer(joueur)
 }
 
-func Poison(joueur Character) {
+func Poison(joueur Character, ennemi Enemy) {
+	fmt.Printf("%s utilise une fiole de Neurotoxine contre %s !\n", joueur.name, ennemi.name)
 
+	for i:= 1; i < 3; i++ {
+		time.Sleep(1 * time.Second)
+		damage := 10
+		ennemi.HPnormal -= damage
+		fmt.Printf("Tour %d : %s perd %d PV à cause du poison. PV restants : %d/%d\n", i, ennemi.name, damage, ennemi.HPnormal, ennemi.HPmax)
+
+		if ennemi.HPnormal <= 0 {
+			isDead(ennemi)
+			return
+		}
+	}
+	fmt.Printf("L'effet du poison sur %s est terminé. \n", ennemi.name)
 }
 
 func LearnSkill(joueur Character) {
@@ -327,7 +388,7 @@ func addItem(inventory []Item, item Item) []Item {
     return append(inventory, item)
 }
 
-func isDead(joueur *Character) {
+func isDead(joueur Character, ennemi Character) {
     if joueur.HPnormal <= 0 {
         fmt.Println(`
  ▄█     █▄     ▄████████    ▄████████     ███        ▄████████ ████████▄  
@@ -342,5 +403,15 @@ func isDead(joueur *Character) {
         fmt.Printf("\n %s est mort...\n", joueur.name)
         joueur.HPnormal = joueur.HPmax / 2
         fmt.Printf(" %s a été ressuscité avec %d PV !\n", joueur.name, joueur.HPnormal)
-    }
+    } else if ennemi.HPnormal <= 0 {
+		fmt.Println(`
+    ______                              ____                 __
+   / ____/___  ___  ____ ___  __  __   / __ \___  ____ _____/ /
+  / __/ / __ \/ _ \/ __ `__ \/ / / /  / / / / _ \/ __ `/ __  / 
+ / /___/ / / /  __/ / / / / / /_/ /  / /_/ /  __/ /_/ / /_/ /  
+/_____/_/ /_/\___/_/ /_/ /_/\__, /  /_____/\___/\__,_/\__,_/   
+                           /____/                              
+	`)
+        fmt.Printf("\n %s est mort...\n", ennemi.name)
+	}
 }
