@@ -22,8 +22,10 @@ func main() {
 	if scanner.Scan() {
 		choix := scanner.Text()
 		if choix == "O" {
+			fmt.Println()
 			joueur = PersonnagePrincipal()
 		} else if choix == "N" {
+			fmt.Println()
 			joueur = InitCharacter()
 		} else {
 			fmt.Println("Choix invalide, nous vous sélectionnons Ash par défaut.")
@@ -61,12 +63,17 @@ type Skill struct {
 
 func AfficherTitre() {
 	fmt.Println(`
-  _____   __     __   ____     _____    ____       ____       ___
- / ____|  \ \   / /  | __ \   |  ___|  |  _ \     / ___|     / _ \
-| |        \ \_/ /   |    /   | |___   | |_) |   | /        | | | |
-| |         \   /    |  _ \   |  ___|  |  _  /   | |  ___   | | | |
-| |____      | |     | |_) |  | |___   | | \ \   | |_|  _|  | |_| |
- \_____|     |_|     |____/   |_____|  |_|  \_\   \____|     \___/
+   █████████             █████                          █████████          
+  ███░░░░░███           ░░███                          ███░░░░░███         
+ ███     ░░░  █████ ████ ░███████   ██████  ████████  ███     ░░░   ██████ 
+░███         ░░███ ░███  ░███░░███ ███░░███░░███░░███░███          ███░░███
+░███          ░███ ░███  ░███ ░███░███████  ░███ ░░░ ░███    █████░███ ░███
+░░███     ███ ░███ ░███  ░███ ░███░███░░░   ░███     ░░███  ░░███ ░███ ░███
+ ░░█████████  ░░███████  ████████ ░░██████  █████     ░░█████████ ░░██████ 
+  ░░░░░░░░░    ░░░░░███ ░░░░░░░░   ░░░░░░  ░░░░░       ░░░░░░░░░   ░░░░░░  
+               ███ ░███                                                    
+              ░░██████                                                     
+               ░░░░░░      
 `)
 }
 
@@ -173,7 +180,9 @@ func InitCharacter() Character {
 			{"Poing chromé", "Enlève 40 PV", "(U)"},
 		},
 	}
+	fmt.Println()
 	fmt.Println("Ton personnage a été créé !")
+	fmt.Println()
 	DisplayFirstInfo(personnage)
 
 	return personnage
@@ -217,35 +226,38 @@ func accessInventory(joueur Character) {
 	for i, item := range joueur.Inventory {
 		fmt.Printf("%d. %s - %s\n", i+1, item.Name, item.Description)
 	}
-	fmt.Print("\nChoisissez un numéro d’objet à utiliser : ")
+	fmt.Print("\nChoisissez un numéro d'objet ou revenir au menu principal (B): ")
     scanner := bufio.NewScanner(os.Stdin)
     if scanner.Scan() {
         choix := scanner.Text()
-
+		if choix == "B" {
+			fmt.Println()
+			Jouer(joueur)
+			fmt.Println()
+		}
         var index int
         _, err := fmt.Sscanf(choix, "%d", &index)
+		
         if err != nil {
             fmt.Println("X Choix invalide")
             accessInventory(joueur)
         }
-
         index = index - 1
         if index < 0 || index >= len(joueur.Inventory) {
             fmt.Println("X Pas d’objet à cet index")
             accessInventory(joueur)
         }
-
+		
         item := joueur.Inventory[index]
         if item.Name == "Seringue de soin" {
             joueur.HPnormal += 50
             if joueur.HPnormal > joueur.HPmax {
                 joueur.HPnormal = joueur.HPmax
             }
-            fmt.Printf("Vous avez utilisé une seringue pour vous soigner ! PV :%d / %d", joueur.HPnormal, joueur.HPmax)
-
-            joueur.Inventory = removeItem(joueur.Inventory, index)
+            fmt.Println("Vous avez utilisé une seringue pour vous soigner ! PV :", joueur.HPnormal, "/", joueur.HPmax)
+			joueur.Inventory = removeItem(joueur.Inventory, index)
         } else {
-            fmt.Println("/!\\ Cet objet n’est pas utilisable./!\\")
+            fmt.Println("/!\\ Cet objet n'est pas utilisable./!\\")
         }
     }
 	GoBack(joueur)
@@ -284,20 +296,23 @@ func Marchand(joueur Character) {
 	`)
 	fmt.Println("Bienvenue,", joueur.name, "! J'ai tout ce qu'il te faut ici.")
 	fmt.Println("- Seringue de soin (gratuit) O1 / N1")
-	GoBack(joueur)
+
 	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Print("> ")
 	if scanner.Scan() {
 		choix := scanner.Text()
-
 		if choix == "O1" {
 			item := Item{Name: "Seringue de soin", Description: "Restaure 50 PV"}
-			fmt.Println("\nTu as acheté une seringue, sois prudent !\n")
 			joueur.Inventory = addItem(joueur.Inventory, item)
-			Jouer(joueur)
+			fmt.Println("\nTu as acheté une seringue, sois prudent !\n")
 		} else if choix == "N1" {
-			GoBack(joueur)
+			fmt.Println()
+			fmt.Println("\nÀ très bientot", joueur.name, "!")
+			fmt.Println()
+			Jouer(joueur)
 		}
 	}
+	Jouer(joueur)
 }
 
 func Poison(joueur Character) {
@@ -309,18 +324,20 @@ func LearnSkill(joueur Character) {
 }
 
 func addItem(inventory []Item, item Item) []Item {
-	return append(inventory, item)
+    return append(inventory, item)
 }
 
 func isDead(joueur *Character) {
     if joueur.HPnormal <= 0 {
         fmt.Println(`
-W       W   AAAAAAA   SSSSSSS  TTTTTTTT   EEEEEEE   DDDDDD  
-W       W   A     A   S           T       E         D     D 
-W   W   W   AAAAAAA    SSSSS      T       EEEEE     D     D 
-W W W W W   A     A         S     T       E         D     D 
-W W   W W   A     A   S     S     T       E         D     D 
-W       W   A     A    SSSSS      T       EEEEEEE   DDDDDD  
+ ▄█     █▄     ▄████████    ▄████████     ███        ▄████████ ████████▄  
+███     ███   ███    ███   ███    ███ ▀█████████▄   ███    ███ ███   ▀███ 
+███     ███   ███    ███   ███    █▀     ▀███▀▀██   ███    █▀  ███    ███ 
+███     ███   ███    ███   ███            ███   ▀  ▄███▄▄▄     ███    ███ 
+███     ███ ▀███████████ ▀███████████     ███     ▀▀███▀▀▀     ███    ███ 
+███     ███   ███    ███          ███     ███       ███    █▄  ███    ███ 
+███ ▄█▄ ███   ███    ███    ▄█    ███     ███       ███    ███ ███   ▄███ 
+ ▀███▀███▀    ███    █▀   ▄████████▀     ▄████▀     ██████████ ████████▀  
    `)
         fmt.Printf("\n %s est mort...\n", joueur.name)
         joueur.HPnormal = joueur.HPmax / 2
