@@ -41,7 +41,6 @@ func main() {
 type Item struct {
 	Name        string
 	Description string
-	Shortcut	string
 }
 
 type Character struct {
@@ -142,7 +141,7 @@ func PersonnagePrincipal() Character {
 		HPmax:    200,
 		HPnormal: 100,
 		Inventory: []Item{
-			{"Seringue de soin", "Restaure 50 PV", "(S)"},
+			{"Seringue de soin", "Restaure 50 PV"},
 		},
 		Skills: []Skill{
 			{"Coup de poing", "Enlève 15 PV", "(C)"},
@@ -166,8 +165,8 @@ func InitCharacter() Character {
 		HPmax:    100,
 		HPnormal: 40,
 		Inventory: []Item{
-			{"Seringue de soin", "Restaure 50 PV", "(S)"},
-			{"Fiole de Neurotoxine", "Empoisonne l'ennemi pendant 3s", "(F)"},
+			{"Seringue de soin", "Restaure 50 PV", },
+			{"Fiole de Neurotoxine", "Empoisonne l'ennemi pendant 3s", },
 		},
 		Skills: []Skill{
 			{"Coup de poing", "Enlève 15 PV", "(C)"},
@@ -212,17 +211,55 @@ func accessInventory(joueur Character) {
 
 	if len(joueur.Inventory) == 0 {
 		fmt.Println("Votre inventaire est vide.")
-		return
+		GoBack(joueur)
 	}
 
 	for i, item := range joueur.Inventory {
-		fmt.Printf("%d. %s - %s %s\n", i+1, item.Name, item.Description, item.Shortcut)
+		fmt.Printf("%d. %s - %s\n", i+1, item.Name, item.Description)
 	}
-	Seringue(joueur)
+	fmt.Print("\nChoisissez un numéro d’objet à utiliser : ")
+    scanner := bufio.NewScanner(os.Stdin)
+    if scanner.Scan() {
+        choix := scanner.Text()
+
+        var index int
+        _, err := fmt.Sscanf(choix, "%d", &index)
+        if err != nil {
+            fmt.Println("X Choix invalide")
+            accessInventory(joueur)
+        }
+
+        index = index - 1
+        if index < 0 || index >= len(joueur.Inventory) {
+            fmt.Println("X Pas d’objet à cet index")
+            accessInventory(joueur)
+        }
+
+        item := joueur.Inventory[index]
+        if item.Name == "Seringue de soin" {
+            joueur.HPnormal += 50
+            if joueur.HPnormal > joueur.HPmax {
+                joueur.HPnormal = joueur.HPmax
+            }
+            fmt.Printf("Vous avez utilisé une seringue pour vous soigner ! PV :%d / %d", joueur.HPnormal, joueur.HPmax)
+
+            joueur.Inventory = removeItem(joueur.Inventory, index)
+        } else {
+            fmt.Println("/!\\ Cet objet n’est pas utilisable./!\\")
+        }
+    }
+	GoBack(joueur)
 }
 
 func removeItem(inventory []Item, index int) []Item {
-	return append(inventory[:index], inventory[index+1])
+
+	if index < 0 || index >= len(inventory) {
+		return inventory
+	}
+	newInventory := append(inventory[:index], inventory[index+1:]...)
+	fmt.Println(newInventory)
+
+	return newInventory
 }
 
 func GoBack(joueur Character) {
@@ -233,40 +270,6 @@ func GoBack(joueur Character) {
 	bufio.NewReader(os.Stdin).ReadBytes('\n')
 	fmt.Println()
 	Jouer(joueur)
-}
-
-func Seringue(joueur Character) {
-
-	fmt.Println("\nRevenir au menu principal (B).")
-	fmt.Println()
-	fmt.Print("> ")
-	scanner := bufio.NewScanner(os.Stdin)
-	if scanner.Scan() {
-		choix := scanner.Text()
-		if choix == "S" {
-			for i, item := range joueur.Inventory {
-				if item.Name == "Seringue de soin" {
-					joueur.HPnormal += 50
-					if joueur.HPnormal > joueur.HPmax {
-						joueur.HPnormal = joueur.HPmax
-					}
-					fmt.Println("Vous avez utilisé une seringue pour vous soigner ! PV :", joueur.HPnormal, "/", joueur.HPmax)
-					joueur.Inventory = removeItem(joueur.Inventory, i)
-				}
-			}
-			fmt.Println("Dorénavant, vous n'avez plus de seringue.")
-			fmt.Println()
-			Jouer(joueur)
-		} else if choix == "B"{
-			Jouer(joueur)
-			fmt.Println()
-		} else {
-			fmt.Println()
-			fmt.Println("/!\\ Choix invalide, retour au menu précédent. /!\\")
-			fmt.Println()
-			accessInventory(joueur)
-		}
-	}
 }
 
 func Marchand(joueur Character) {
@@ -280,16 +283,18 @@ func Marchand(joueur Character) {
         ==   ==
 	`)
 	fmt.Println("Bienvenue,", joueur.name, "! J'ai tout ce qu'il te faut ici.")
-	fmt.Println("- Seringue de soin (gratuit) O / N")
+	fmt.Println("- Seringue de soin (gratuit) O1 / N1")
+	GoBack(joueur)
 	scanner := bufio.NewScanner(os.Stdin)
 	if scanner.Scan() {
 		choix := scanner.Text()
-		if choix == "O" {
-			item := Item{Name: "Seringue de soin", Description: "Restaure 50 PV", Shortcut: "(S)"}
-			addItem(joueur.Inventory, item)
-			fmt.Println()
+
+		if choix == "O1" {
+			item := Item{Name: "Seringue de soin", Description: "Restaure 50 PV"}
+			fmt.Println("\nTu as acheté une seringue, sois prudent !\n")
+			joueur.Inventory = addItem(joueur.Inventory, item)
 			Jouer(joueur)
-		} else if choix == "N" {
+		} else if choix == "N1" {
 			GoBack(joueur)
 		}
 	}
@@ -305,4 +310,20 @@ func LearnSkill(joueur Character) {
 
 func addItem(inventory []Item, item Item) []Item {
 	return append(inventory, item)
+}
+
+func isDead(joueur *Character) {
+    if joueur.HPnormal <= 0 {
+        fmt.Println(`
+W       W   AAAAAAA   SSSSSSS  TTTTTTTT   EEEEEEE   DDDDDD  
+W       W   A     A   S           T       E         D     D 
+W   W   W   AAAAAAA    SSSSS      T       EEEEE     D     D 
+W W W W W   A     A         S     T       E         D     D 
+W W   W W   A     A   S     S     T       E         D     D 
+W       W   A     A    SSSSS      T       EEEEEEE   DDDDDD  
+   `)
+        fmt.Printf("\n %s est mort...\n", joueur.name)
+        joueur.HPnormal = joueur.HPmax / 2
+        fmt.Printf(" %s a été ressuscité avec %d PV !\n", joueur.name, joueur.HPnormal)
+    }
 }
