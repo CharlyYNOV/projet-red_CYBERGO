@@ -8,39 +8,39 @@ import (
 	"strings"
 )
 
-type Item struct {
-	Name        string
-	Description string
+type Item struct { // structure d'item qui va venir définir certains termes pour les simplifier par la suite
+	Name        string // nom de l'item et son paramètre d'entrée donc en string
+	Description string // sa description qui amène à ses conséquences et son paramètre d'entrée en string
 }
 
-type Character struct {
-	name      string
-	class     string
-	level     int
-	HPmax     int
-	HPnormal  int
-	Inventory []Item
-	Skills	  []Skill
-	Coins     int
+type Character struct { //structure concernant le personnage qui va venir définir certains termes pour les simplifier par la suite
+	name      string // le nom du personnage en string
+	class     string // le nom de sa classe en string
+	level     int // le nombre de level qu'a le personage
+	HPmax     int // le nombre d'HP max du personnage
+	HPnormal  int // le nombre d'HP normal du personnage
+	Inventory []Item // tableau d'item dans l'inventaire, où plusieurs items y sont stockés
+	Skills	  []Skill // tableau de skill, où plusieurs skills peuvent être appris
+	Coins     int // le nombre de pièces qu'a le personnage
 }
 
-type Enemy struct {
-    name     string
-    HPmax    int
-    HPnormal int
-    attack   int
-	rewardLevel int
-    rewardCoins int
-    loot     Item
+type Enemy struct { // structure concernant les ennemis qui va venir les définir plus simplement
+    name     string // le nom de l'ennemi
+    HPmax    int // le nombre de son HP max
+    HPnormal int // le nombre de son HP normal
+    attack   int // le nombre de dégâts qu'il va engendrer à notre personnage
+	rewardLevel int // le nombre de niveau que le personnage va level up après l'avoir battu
+    rewardCoins int // le nombre de pièces que le personnage va gagner après l'avoir battu
+    loot     Item // l'item que va récupérer le personnage après l'avoir battu, qui va venir se positionner dans l'inventaire
 }
 
-type Skill struct {
-	name 	string
-	description string
-	shortcut     string
+type Skill struct { // structure concernant les capacités du personnage, et qui va définir ses termes
+	name 	string // le nom de la compétence, donc Coup de poing et Uppercut Chromé
+	description string // sa description qui amène à ses conséquences, style dégâts massifs et HP accru
+	shortcut     string // le nom de son raccourci pour son utilisation
 }
 
-func main() {
+func main() { // fonction main qui vient présenter le jeu à l'utilisateur et lui présente le choix des personnages
 	AfficherTitre()
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -73,7 +73,7 @@ func main() {
 	AfficherMenu(&joueur)
 }
 
-func AfficherTitre() {
+func AfficherTitre() { // titre ASCII présentant le jeu dans sa splendeur
 	fmt.Println(`
 				   █████████             █████                          █████████          
 				  ███░░░░░███           ░░███                          ███░░░░░███         
@@ -89,7 +89,7 @@ func AfficherTitre() {
 `)
 }
 
-func AfficherMenu(joueur *Character) {
+func AfficherMenu(joueur *Character) { // le menu principal où l'on joue au jeu où l'on quitte le programme
 	fmt.Println(`
 	- Jouer (P)
 	- Quitter (Q)
@@ -115,7 +115,7 @@ func AfficherMenu(joueur *Character) {
 	}
 }
 
-func Jouer(joueur *Character) {
+func Jouer(joueur *Character) { // menu secondaire où tout les codes sont reliés, pour combattre, accéder au marchand, à l'inventaire, aux infos de notre perso et au retour du menu principal
 	fmt.Println("◊ Combats à mort (F)")
 	fmt.Println("◊ Marchand (M)")
 	fmt.Println("◊ Inventaire (I)")
@@ -156,7 +156,7 @@ func Jouer(joueur *Character) {
 	}
 }
 
-func PersonnagePrincipal() Character {
+func PersonnagePrincipal() Character { // utilisation de la structure Character pour définir notre personnage principal, Ash
 	personnage := Character{
 		name:     "Ash",
 		class:    "Mercenaire",
@@ -176,7 +176,7 @@ func PersonnagePrincipal() Character {
 	return personnage
 }
 
-func InitCharacter() Character {
+func InitCharacter() Character { // une nouvelle fois l'utilisation de la structure Character pour définir le personnage créé par l'utilisateur
 	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Print("Choisis un prénom: ")
@@ -230,7 +230,7 @@ func InitCharacter() Character {
 	return personnage
 }
 
-func DisplayFirstInfo(joueur Character) {
+func DisplayFirstInfo(joueur Character) { // fonction qui donne les informations du personnage dès le lancement du jeu et qui ne sera plus pareil suite au combat
 	fmt.Println("=== Informations du personnage ===")
 	fmt.Println("Nom :", joueur.name)
 	fmt.Println("Classe :", joueur.class)
@@ -244,7 +244,7 @@ func DisplayFirstInfo(joueur Character) {
 	fmt.Println("===============================")
 }
 
-func DisplayInfo(joueur Character) {
+func DisplayInfo(joueur Character) { // fonction qui est évolutif suite aux combats que le personnage a enduré
 	fmt.Println("=== Informations du personnage ===")
 	fmt.Println("Nom :", joueur.name)
 	fmt.Println("Classe :", joueur.class)
@@ -259,7 +259,7 @@ func DisplayInfo(joueur Character) {
 	GoBack(joueur)
 }
 
-func accessInventory(joueur *Character) {
+func accessInventory(joueur *Character) { // accès à l'inventaire dans le menu secondaire, où uniquement la seringue de soin peut être utilisé
 	fmt.Println("\n===== Inventaire de", joueur.name, "=====")
 
 	if len(joueur.Inventory) == 0 {
@@ -312,7 +312,7 @@ func accessInventory(joueur *Character) {
 	GoBack(*joueur)
 }
 
-func accessInventoryCombat(joueur *Character, ennemi *Enemy) {
+func accessInventoryCombat(joueur *Character, ennemi *Enemy) { //*** accès à l'inventaire, identique à celui du menu secondaire, où la fiole de neurotoxine peut être utilisé pour endommagé l'ennemi
     scanner := bufio.NewScanner(os.Stdin)
 
     fmt.Printf("\n===== Inventaire de %s =====\n", joueur.name)
@@ -370,7 +370,7 @@ func accessInventoryCombat(joueur *Character, ennemi *Enemy) {
     }
 }
 
-func removeItem(inventory []Item, index int) []Item {
+func removeItem(inventory []Item, index int) []Item { // fonction qui lorsqu'un item est utilisé, seringue ou fiole neurotoxine, il la supprime
 
 	if index < 0 || index >= len(inventory) {
 		return inventory
@@ -378,7 +378,7 @@ func removeItem(inventory []Item, index int) []Item {
 	return append(inventory[:index], inventory[index+1:]...)
 }
 
-func Marchand(joueur Character) {
+func Marchand(joueur Character) { // fonction qui propose un marchand et ses ventes à des prix abordables 
 	fmt.Println(`
 	(\_._/) 
     	( o o )   
@@ -444,7 +444,7 @@ func Marchand(joueur Character) {
 	}
 }
 
-func hasItem(inventory []Item, itemName string) bool{
+func hasItem(inventory []Item, itemName string) bool{ // fonction qui vient vérifier si le joueur à un certain item pour obtenir quelque chose
 	for _, item := range inventory {
 		if item.Name == itemName {
 			return true
@@ -453,7 +453,7 @@ func hasItem(inventory []Item, itemName string) bool{
 	return false
 }
 
-func hasSkill(skills []Skill, skillName string) bool {
+func hasSkill(skills []Skill, skillName string) bool { // fonction qui vient vérifier si le joueur à certaines capacités, et l'ajoute durant les combats
     for _, s := range skills {
         if s.name == skillName {
             return true
@@ -462,7 +462,7 @@ func hasSkill(skills []Skill, skillName string) bool {
     return false
 }
 
-func Poison(joueur Character, ennemi Enemy) {
+func Poison(joueur Character, ennemi Enemy) { // fonction qui vient activé les effets de la fiole neurotoxine avec le import time
 	fmt.Printf("%s utilise une fiole de Neurotoxine contre %s !\n", joueur.name, ennemi.name)
 
 	for i:= 1; i < 3; i++ {
@@ -479,7 +479,7 @@ func Poison(joueur Character, ennemi Enemy) {
 	fmt.Printf("L'effet du poison sur %s est terminé. \n", ennemi.name)
 }
 
-func LearnSkill(joueur Character) {
+func LearnSkill(joueur Character) { // fonction qui vient apprendre les capacités, et qui les ajoute au combat
     newSkills := []Skill{
         {"Coup de poing", "Enlève 15 PV", "(C)"},
         {"Uppercut chromé", "Enlève 40 PV", "(U)"},
@@ -491,7 +491,7 @@ func LearnSkill(joueur Character) {
     }
 }
 
-func addItem(inventory []Item, item Item) []Item {
+func addItem(inventory []Item, item Item) []Item { // fonction qui lorsqu'un item est acheté, il est ajouté à l'inventaire, il est dans la fonction marchand
     if !canAddItem(inventory) {
         fmt.Printf("Impossible d'ajouter %s : inventaire plein.\n", item.Name)
         return inventory
@@ -499,7 +499,7 @@ func addItem(inventory []Item, item Item) []Item {
     return append(inventory, item)
 }
 
-func IsDeadJoueur(joueur Character, ennemi Character) {
+func IsDeadJoueur(joueur Character, ennemi Character) { // fonction qui vient vérifier si le joueur a 0 d'HP, dans ce cas il meurt, le combat est finit et il est ressucité
     if joueur.HPnormal <= 0 {
         fmt.Println(`
 				 ▄█     █▄     ▄████████    ▄████████     ███        ▄████████ ████████▄  
@@ -518,7 +518,7 @@ func IsDeadJoueur(joueur Character, ennemi Character) {
 	Jouer(&joueur)
 }
 
-func IsDeadEnemy(ennemi Enemy) {
+func IsDeadEnemy(ennemi Enemy) { // fonction qui vient vérifier si l'ennemi a 0 HP, dans ce cas il meurt et le combat est terminé
 	if ennemi.HPnormal <= 0 {
         fmt.Println(`
 				 ____  __ _  ____  _  _  _  _      ____  ____   __   ____ 
@@ -530,7 +530,7 @@ func IsDeadEnemy(ennemi Enemy) {
     }
 }
 
-func CreateEnemies() (Enemy, Enemy) {
+func CreateEnemies() (Enemy, Enemy) { // fonction qui utilise la structure Enemy pour définir les adversaires du personnage
     brasDroit := Enemy{
         name:        "Bras droit de Garmadon",
         HPmax:       120,
@@ -554,7 +554,7 @@ func CreateEnemies() (Enemy, Enemy) {
     return brasDroit, garmadon
 }
 
-func ChoixCombat(joueur Character) {
+func ChoixCombat(joueur Character) { // fonction dans les combats où l'utilisateur choisi l'adversaire à affronter
     brasDroit, garmadon := CreateEnemies()
 
     fmt.Println("\nChoisis ton adversaire :")
@@ -608,7 +608,7 @@ func ChoixCombat(joueur Character) {
 	GoBack(joueur)
 }
 
-func Combat(joueur *Character, ennemi *Enemy) {
+func Combat(joueur *Character, ennemi *Enemy) { // fonction qui agit le combat tour par tour, l'ennemi a juste une attaque basique
     scanner := bufio.NewScanner(os.Stdin)
 
     fmt.Printf("\nCombat : %s VS %s\n", joueur.name, ennemi.name)
@@ -647,7 +647,7 @@ func Combat(joueur *Character, ennemi *Enemy) {
 					}
 					fmt.Println("Bravo", joueur.name, "tu as vaincu", ennemi.name, ", tu obtiens donc" ,ennemi.rewardLevel, "de niveaux et" ,ennemi.rewardCoins, " de pièces !")
 					if ennemi.loot.Name != "" {
-            			fmt.Printf("💎 Tu obtiens : %s\n", ennemi.loot.Name)
+            			fmt.Printf("Tu obtiens : %s\n", ennemi.loot.Name)
 					}
 					break
             	} else {
@@ -679,7 +679,7 @@ func Combat(joueur *Character, ennemi *Enemy) {
 	}
 }
 
-func GoBack(joueur Character) {
+func GoBack(joueur Character) { // fonction qui ramène au menu secondaire et par ensuite au menu principal
 
 	fmt.Println("\nRevenir au menu principal (B).")
 	fmt.Println()
@@ -689,11 +689,11 @@ func GoBack(joueur Character) {
 	Jouer(&joueur)
 }
 
-func canAddItem(inventory []Item) bool {
+func canAddItem(inventory []Item) bool { // fonction qui vérifie si l'inventaire est < à 10, si oui l'item acheté y est ajouté
     return len(inventory) < 10
 }
 
-func AddItem(inventory []Item, item Item) []Item {
+func AddItem(inventory []Item, item Item) []Item { // fonction qui vient refuser l'ajout de l'item car l'inventaire est > 10
     if !canAddItem(inventory) {
         fmt.Printf("Impossible d'ajouter %s : inventaire plein.\n", item.Name)
         return inventory
@@ -701,9 +701,8 @@ func AddItem(inventory []Item, item Item) []Item {
     return append(inventory, item)
 }
 
-func TestAchat() {
+func TestAchat() { // fonction qui vient ajouter l'item à l'inventaire ou non et qui nous prévient que c'est impossible
     var joueur Character
-    joueur.Coins = 10
     joueur.Inventory = []Item{}
 
     if joueur.Coins >= 3 {
