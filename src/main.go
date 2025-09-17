@@ -663,7 +663,6 @@ func Combat(joueur *Character, ennemi *Enemy) { // fonction qui agit le combat t
 					}
 					break
             	} else {
-                fmt.Println("X Choix invalide.")
                 continue
             	}
         	}

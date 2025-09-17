@@ -31,3 +31,5 @@ __Mission 3__ : Combat -> Charly \
 __Mission 4__ : \
 __Mission 5__ : \
 __Mission 6__ : Qui sont-ils -> Quentin et Charly 
+
+__Correction des erreurs et de mauvaises aperçus à l'expérience de l'utilisateur__ : Quentin et Charly
