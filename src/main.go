@@ -120,6 +120,7 @@ func Jouer(joueur *Character) { // menu secondaire où tout les codes sont reli�
 	fmt.Println("◊ Marchand (M)")
 	fmt.Println("◊ Inventaire (I)")
 	fmt.Println("◊ Détails du personnage (D)")
+	fmt.Println("◊ Qui sont-ils (W)")
 	fmt.Println("◊ Retour (B)")
 
 	fmt.Print("> ")
@@ -146,6 +147,10 @@ func Jouer(joueur *Character) { // menu secondaire où tout les codes sont reli�
 		} else if choix == "F" {
 			fmt.Println()
 			ChoixCombat(*joueur)
+			fmt.Println()
+		} else if choix == "W" {
+			fmt.Println()
+			WhoisWho(joueur)
 			fmt.Println()
 		} else {
 			fmt.Println()
@@ -228,6 +233,13 @@ func InitCharacter() Character { // une nouvelle fois l'utilisation de la struct
 	DisplayFirstInfo(personnage)
 
 	return personnage
+}
+
+func WhoisWho(joueur *Character) {
+	fmt.Println()
+	fmt.Println("Les deux artistes cachés sont ABBA et Steven Spielberg !")
+	fmt.Println()
+	GoBack(*joueur)
 }
 
 func DisplayFirstInfo(joueur Character) { // fonction qui donne les informations du personnage dès le lancement du jeu et qui ne sera plus pareil suite au combat
