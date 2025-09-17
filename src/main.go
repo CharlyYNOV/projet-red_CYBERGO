@@ -315,11 +315,7 @@ func accessInventory(joueur *Character) { // accès à l'inventaire dans le menu
         } else {
             fmt.Println("/!\\ Cet objet n'est pas utilisable./!\\")
         }
-		var ennemi Enemy
-		if item.Name == "Fiole de Neurotoxine" {
-			Poison(*joueur, ennemi)
-			fmt.Println("Vous avez utilisé une fiole contre votre ennemi !")
-		}
+
     }
 	GoBack(*joueur)
 }
